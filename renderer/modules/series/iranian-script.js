@@ -1,10 +1,10 @@
 // modules/series/iranian-script.js
 (function() {
+    // ---------- IndexedDB (استفاده از نسخه 6 برای هماهنگی با بقیه صفحات) ----------
     const DB_NAME = 'MediaCenterDB';
     const STORE_NAME = 'iranian_series';
     let db = null;
 
-    // --- OpenDB با نسخه 6 (اضافه کردن استور سریال) ---
     function openDB() {
         return new Promise((resolve, reject) => {
             if (db && db.name === DB_NAME) {
@@ -22,18 +22,10 @@
                 if (!db.objectStoreNames.contains('iranian_series')) {
                     db.createObjectStore('iranian_series', { keyPath: 'id' });
                 }
-                // بقیه استورهای قبلی (فیلم‌ها) اگر نیستند ایجاد شوند
-                if (!db.objectStoreNames.contains('iranian_movies')) db.createObjectStore('iranian_movies', { keyPath: 'id' });
-                if (!db.objectStoreNames.contains('foreign_movies')) db.createObjectStore('foreign_movies', { keyPath: 'id' });
-                if (!db.objectStoreNames.contains('animation_movies')) db.createObjectStore('animation_movies', { keyPath: 'id' });
-                if (!db.objectStoreNames.contains('korean_movies')) db.createObjectStore('korean_movies', { keyPath: 'id' });
-                if (!db.objectStoreNames.contains('indian_movies')) db.createObjectStore('indian_movies', { keyPath: 'id' });
-                if (!db.objectStoreNames.contains('other_movies')) db.createObjectStore('other_movies', { keyPath: 'id' });
             };
         });
     }
 
-    // --- CRUD سریال ---
     async function loadSeriesFromDB() {
         const db = await openDB();
         return new Promise((resolve, reject) => {
@@ -67,12 +59,33 @@
         });
     }
 
-    // --- لیست کشورها (همانند فیلم‌ها) ---
-    const COUNTRIES_LIST = [ /* همان لیست قبلی 45 کشور */ ];
+    // ---------- لیست کشورها (از ماژول فیلم‌ها) ----------
+    const COUNTRIES_LIST = [
+        "ایران", "آمریکا", "انگلستان", "فرانسه", "آلمان", "ایتالیا", "اسپانیا", "کانادا", "استرالیا",
+        "ژاپن", "کره جنوبی", "هند", "ترکیه", "روسیه", "چین", "برزیل", "مکزیک", "سوئد", "نروژ",
+        "دانمارک", "هلند", "بلژیک", "سوئیس", "اتریش", "لهستان", "جمهوری چک", "مجارستان", "رومانی",
+        "یونان", "مصر", "اسرائیل", "امارات متحده عربی", "تایلند", "ویتنام", "فیلیپین", "اندونزی",
+        "آرژانتین", "شیلی", "کلمبیا", "آفریقای جنوبی", "نیوزیلند", "پرتغال", "فنلاند", "ایرلند", "کرواسی"
+    ];
 
-    function populateCountryDropdowns() { /* مشابه فیلم‌ها با شناسه‌های سریال */ }
+    function populateCountryDropdowns() {
+        const filterSelect = document.getElementById('series-filter-country');
+        const movieSelect = document.getElementById('series-country');
+        if (filterSelect) {
+            const old = filterSelect.value;
+            filterSelect.innerHTML = '<option value="">همه</option>';
+            COUNTRIES_LIST.forEach(c => filterSelect.appendChild(new Option(c, c)));
+            if (old && COUNTRIES_LIST.includes(old)) filterSelect.value = old;
+        }
+        if (movieSelect) {
+            const old = movieSelect.value;
+            movieSelect.innerHTML = '<option value="">انتخاب کنید</option>';
+            COUNTRIES_LIST.forEach(c => movieSelect.appendChild(new Option(c, c)));
+            if (old && COUNTRIES_LIST.includes(old)) movieSelect.value = old;
+        }
+    }
 
-    // --- متغیرهای اصلی ---
+    // ---------- متغیرهای اصلی ----------
     let allSeries = [];
     let filteredSeries = [];
     let currentPage = 1;
@@ -81,14 +94,38 @@
     let currentEditId = null;
     let tempPoster = null;
 
-    // --- توابع کمکی ---
-    function escapeHtml(str) { /* مانند قبل */ }
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
 
-    // --- صفحه‌بندی ---
-    function updatePagination() { /* مانند قبل با شناسه pagination-container */ }
-    function changePage(page) { /* مانند قبل */ }
+    // ---------- صفحه‌بندی ----------
+    function updatePagination() {
+        const totalPages = Math.ceil(filteredSeries.length / itemsPerPage) || 1;
+        const container = document.getElementById('pagination-container');
+        if (!container) return;
+        let html = `<button class="page-btn" onclick="window.changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>قبلی</button>`;
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="window.changePage(${i})">${i}</button>`;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                html += `<span class="page-dots">...</span>`;
+            }
+        }
+        html += `<button class="page-btn" onclick="window.changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>بعدی</button>`;
+        container.innerHTML = html;
+    }
 
-    // --- فیلتر و مرتب‌سازی ---
+    function changePage(page) {
+        if (page < 1) return;
+        const totalPages = Math.ceil(filteredSeries.length / itemsPerPage);
+        if (page > totalPages) return;
+        currentPage = page;
+        renderSeriesTable();
+        updatePagination();
+    }
+
+    // ---------- فیلتر و مرتب‌سازی ----------
     async function refreshSeriesData() {
         allSeries = await loadSeriesFromDB();
         applyFiltersAndSort();
@@ -97,23 +134,28 @@
     function applyFiltersAndSort() {
         let filtered = [...allSeries];
         const search = (document.getElementById('series-search')?.value || '').toLowerCase();
-        const countryFilter = document.getElementById('filter-country')?.value || '';
-        const languageFilter = document.getElementById('filter-language')?.value || '';
-        const genreFilter = document.getElementById('filter-genre')?.value || '';
+        const countryFilter = document.getElementById('series-filter-country')?.value || '';
+        const languageFilter = document.getElementById('series-filter-language')?.value || '';
+        const genreFilter = document.getElementById('series-filter-genre')?.value || '';
 
-        if (search) filtered = filtered.filter(s => s.title?.toLowerCase().includes(search) || s.titleEn?.toLowerCase().includes(search));
-        if (countryFilter) filtered = filtered.filter(s => s.country === countryFilter);
+        if (search) filtered = filtered.filter(s => (s.title || '').toLowerCase().includes(search) || (s.titleEn || '').toLowerCase().includes(search));
+        if (countryFilter) filtered = filtered.filter(s => (s.country || '') === countryFilter);
         if (languageFilter) {
             if (languageFilter === 'هر دو') filtered = filtered.filter(s => s.language === 'زبان اصلی' || s.language === 'دوبله فارسی');
-            else filtered = filtered.filter(s => s.language === languageFilter);
+            else filtered = filtered.filter(s => (s.language || '') === languageFilter);
         }
         if (genreFilter) filtered = filtered.filter(s => (s.genres || []).includes(genreFilter));
 
         filtered.sort((a, b) => {
             let valA = a[currentSort.field] || '';
             let valB = b[currentSort.field] || '';
-            if (currentSort.field === 'imdb') { valA = +valA || 0; valB = +valB || 0; return currentSort.order === 'asc' ? valA - valB : valB - valA; }
-            valA = String(valA).toLowerCase(); valB = String(valB).toLowerCase();
+            if (currentSort.field === 'imdb') {
+                valA = +valA || 0;
+                valB = +valB || 0;
+                return currentSort.order === 'asc' ? valA - valB : valB - valA;
+            }
+            valA = String(valA).toLowerCase();
+            valB = String(valB).toLowerCase();
             return currentSort.order === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
         });
 
@@ -123,7 +165,6 @@
         updatePagination();
     }
 
-    // --- رندر جدول سریال‌ها (با نمایش آخرین قسمت) ---
     function getLastEpisodeInfo(series) {
         if (!series.seasons || series.seasons.length === 0) return 'هیچ قسمتی';
         const lastSeason = series.seasons[series.seasons.length - 1];
@@ -140,7 +181,7 @@
         tbody.innerHTML = '';
 
         if (pageSeries.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">هیچ سریالی یافت نشد<\/td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">هیچ سریالی یافت نشد</td></tr>';
             return;
         }
 
@@ -165,7 +206,7 @@
         });
     }
 
-    // --- فرم افزودن/ویرایش سریال ---
+    // ---------- فرم افزودن/ویرایش سریال ----------
     function showSeriesForm(editId = null) {
         currentEditId = editId;
         document.getElementById('form-title').innerHTML = editId ? 'ویرایش سریال' : 'افزودن سریال جدید';
@@ -245,7 +286,7 @@
         Swal.fire('حذف شد', '', 'success');
     }
 
-    // --- مدیریت فصل‌ها و قسمت‌ها ---
+    // ---------- مدیریت فصل‌ها و قسمت‌ها ----------
     let currentSeriesForEpisodes = null;
 
     async function openEpisodesManager(seriesId) {
@@ -277,7 +318,6 @@
                 <div class="episodes-list" id="episodes-list-${idx}"></div>
             `;
             container.appendChild(seasonDiv);
-            // نمایش قسمت‌ها
             const episodesContainer = seasonDiv.querySelector(`.episodes-list`);
             if (season.episodes && season.episodes.length) {
                 season.episodes.forEach((ep, epIdx) => {
@@ -300,7 +340,7 @@
             }
         });
 
-        // اتصال رویدادها (با استفاده از event delegation)
+        // اتصال رویدادها
         container.querySelectorAll('.season-name-input').forEach(inp => {
             inp.addEventListener('change', async (e) => {
                 const seasonIdx = parseInt(inp.dataset.seasonIndex);
@@ -308,7 +348,7 @@
                     currentSeriesForEpisodes.seasons[seasonIdx].seasonName = inp.value.trim() || `فصل ${seasonIdx+1}`;
                     await saveSeriesToDB(currentSeriesForEpisodes);
                     await refreshSeriesData();
-                    renderEpisodesManager(); // رفرش
+                    renderEpisodesManager();
                 }
             });
         });
@@ -351,6 +391,11 @@
     }
 
     async function addEpisodeToSeason(seasonIdx) {
+        // برای جلوگیری از مشکل z-index، مودال اصلی را موقتاً مخفی می‌کنیم
+        const episodesModal = document.getElementById('episodes-modal');
+        const wasVisible = episodesModal.style.display === 'flex';
+        if (wasVisible) episodesModal.style.display = 'none';
+
         const { value: formValues } = await Swal.fire({
             title: 'افزودن قسمت جدید',
             html: `
@@ -378,16 +423,21 @@
             cancelButtonText: 'انصراف',
             didOpen: () => {
                 document.getElementById('select-episode-file').addEventListener('click', async () => {
-                    const file = await window.electronAPI?.selectFile();
-                    if (file) document.getElementById('episode-file').value = file;
-                    else Swal.fire('اطلاع', 'این قابلیت فقط در نسخه الکترون فعال است', 'info');
+                    if (window.electronAPI && window.electronAPI.selectFile) {
+                        const file = await window.electronAPI.selectFile();
+                        if (file) document.getElementById('episode-file').value = file;
+                    } else {
+                        Swal.fire('اطلاع', 'این قابلیت فقط در نسخه الکترون فعال است', 'info');
+                    }
                 });
             }
         });
+
+        if (wasVisible) episodesModal.style.display = 'flex';
+
         if (formValues) {
             if (!currentSeriesForEpisodes.seasons[seasonIdx].episodes) currentSeriesForEpisodes.seasons[seasonIdx].episodes = [];
             currentSeriesForEpisodes.seasons[seasonIdx].episodes.push(formValues);
-            // مرتب‌سازی قسمت‌ها بر اساس شماره
             currentSeriesForEpisodes.seasons[seasonIdx].episodes.sort((a,b) => a.episodeNumber - b.episodeNumber);
             await saveSeriesToDB(currentSeriesForEpisodes);
             await refreshSeriesData();
@@ -398,6 +448,10 @@
 
     async function editEpisode(seasonIdx, epIdx) {
         const ep = currentSeriesForEpisodes.seasons[seasonIdx].episodes[epIdx];
+        const episodesModal = document.getElementById('episodes-modal');
+        const wasVisible = episodesModal.style.display === 'flex';
+        if (wasVisible) episodesModal.style.display = 'none';
+
         const { value: formValues } = await Swal.fire({
             title: 'ویرایش قسمت',
             html: `
@@ -425,12 +479,18 @@
             cancelButtonText: 'انصراف',
             didOpen: () => {
                 document.getElementById('select-episode-file').addEventListener('click', async () => {
-                    const file = await window.electronAPI?.selectFile();
-                    if (file) document.getElementById('episode-file').value = file;
-                    else Swal.fire('اطلاع', 'این قابلیت فقط در نسخه الکترون فعال است', 'info');
+                    if (window.electronAPI && window.electronAPI.selectFile) {
+                        const file = await window.electronAPI.selectFile();
+                        if (file) document.getElementById('episode-file').value = file;
+                    } else {
+                        Swal.fire('اطلاع', 'این قابلیت فقط در نسخه الکترون فعال است', 'info');
+                    }
                 });
             }
         });
+
+        if (wasVisible) episodesModal.style.display = 'flex';
+
         if (formValues) {
             currentSeriesForEpisodes.seasons[seasonIdx].episodes[epIdx] = formValues;
             currentSeriesForEpisodes.seasons[seasonIdx].episodes.sort((a,b) => a.episodeNumber - b.episodeNumber);
@@ -446,8 +506,11 @@
         currentSeriesForEpisodes = null;
     }
 
-    // --- اضافه کردن فصل جدید ---
     async function addNewSeason() {
+        const episodesModal = document.getElementById('episodes-modal');
+        const wasVisible = episodesModal.style.display === 'flex';
+        if (wasVisible) episodesModal.style.display = 'none';
+
         const { value: seasonName } = await Swal.fire({
             title: 'افزودن فصل جدید',
             input: 'text',
@@ -459,6 +522,9 @@
                 if (!value) return 'لطفاً نام فصل را وارد کنید';
             }
         });
+
+        if (wasVisible) episodesModal.style.display = 'flex';
+
         if (seasonName) {
             if (!currentSeriesForEpisodes.seasons) currentSeriesForEpisodes.seasons = [];
             currentSeriesForEpisodes.seasons.push({
@@ -472,7 +538,58 @@
         }
     }
 
-    // --- رویدادهای عمومی ---
+    // ---------- رویدادهای عمومی ----------
+    function previewPoster(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            tempPoster = e.target.result;
+            document.getElementById('poster-preview').src = tempPoster;
+            document.getElementById('poster-preview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function resetFilters() {
+        document.getElementById('series-filter-country').value = '';
+        document.getElementById('series-filter-language').value = '';
+        document.getElementById('series-filter-genre').value = '';
+        document.getElementById('series-search').value = '';
+        applyFiltersAndSort();
+    }
+
+    function setupSorting() {
+        const headers = document.querySelectorAll('#series-table th[data-sort]');
+        headers.forEach(th => {
+            th.removeEventListener('click', th._listener);
+            const listener = () => {
+                const field = th.dataset.sort;
+                if (currentSort.field === field) currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+                else { currentSort.field = field; currentSort.order = 'asc'; }
+                applyFiltersAndSort();
+                headers.forEach(h => { const icon = h.querySelector('i'); if (icon) icon.className = 'fas fa-sort'; });
+                const icon = th.querySelector('i');
+                if (icon) icon.className = currentSort.order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            };
+            th.addEventListener('click', listener);
+            th._listener = listener;
+        });
+    }
+
+    function populateGenreFilter() {
+        const genres = ["درام","کمدی","ترسناک","اکشن","علمی-تخیلی","عاشقانه","جنایی","مستند","تاریخی","انیمیشن","خانوادگی","ماجراجویی","فانتزی","معمایی"];
+        const select = document.getElementById('series-filter-genre');
+        if (select) {
+            select.innerHTML = '<option value="">همه</option>';
+            genres.forEach(g => select.appendChild(new Option(g,g)));
+        }
+    }
+
+    function enlargeImage(src) {
+        if (src) Swal.fire({ imageUrl: src, showCloseButton: true, showConfirmButton: false });
+    }
+
     function attachEvents() {
         document.getElementById('add-series-btn')?.addEventListener('click', () => showSeriesForm());
         document.getElementById('reset-filters-btn')?.addEventListener('click', () => resetFilters());
@@ -480,20 +597,14 @@
         document.getElementById('close-modal-btn')?.addEventListener('click', () => closeSeriesModal());
         document.getElementById('series-poster')?.addEventListener('change', e => previewPoster(e));
         document.getElementById('series-search')?.addEventListener('input', () => applyFiltersAndSort());
-        document.getElementById('filter-country')?.addEventListener('change', () => applyFiltersAndSort());
-        document.getElementById('filter-language')?.addEventListener('change', () => applyFiltersAndSort());
-        document.getElementById('filter-genre')?.addEventListener('change', () => applyFiltersAndSort());
+        document.getElementById('series-filter-country')?.addEventListener('change', () => applyFiltersAndSort());
+        document.getElementById('series-filter-language')?.addEventListener('change', () => applyFiltersAndSort());
+        document.getElementById('series-filter-genre')?.addEventListener('change', () => applyFiltersAndSort());
         document.getElementById('add-season-btn')?.addEventListener('click', () => addNewSeason());
         document.getElementById('close-episodes-modal-btn')?.addEventListener('click', () => closeEpisodesModal());
     }
 
-    function previewPoster(event) { /* مانند فیلم‌ها */ }
-    function resetFilters() { /* مانند فیلم‌ها */ }
-    function setupSorting() { /* مانند فیلم‌ها با شناسه series-table */ }
-    function populateGenreFilter() { /* مانند فیلم‌ها */ }
-    function enlargeImage(src) { /* مانند فیلم‌ها */ }
-
-    // --- مقداردهی اولیه ---
+    // ---------- مقداردهی اولیه ----------
     async function init_series_iranian() {
         console.log('شروع راه‌اندازی سریال‌های ایرانی...');
         populateCountryDropdowns();

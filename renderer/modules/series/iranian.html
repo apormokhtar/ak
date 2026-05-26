@@ -1,82 +1,80 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سریال‌های ایرانی | مدیا سنتر</title>
-  <link rel="stylesheet" href="modules/series/iranian.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سریال‌های ایرانی | مدیا سنتر</title>
+    <link rel="stylesheet" href="modules/series/iranian.css">
 </head>
 <body>
 <div class="card">
-  <h2><i class="fas fa-tv"></i> سریال‌های ایرانی</h2>
-  <div class="top-bar">
-    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="series-search" placeholder="جستجوی نام سریال..."></div>
-    <button class="btn btn-success" id="add-series-btn"><i class="fas fa-plus-circle"></i> افزودن سریال جدید</button>
-  </div>
-  <div class="filters-bar">
-    <div class="filter-group"><label><i class="fas fa-globe"></i> کشور سازنده</label><select id="filter-country"><option value="">همه</option></select></div>
-    <div class="filter-group"><label><i class="fas fa-language"></i> زبان / دوبله</label><select id="filter-language"><option value="">همه</option><option value="فارسی">فارسی</option><option value="زبان اصلی">زبان اصلی</option><option value="دوبله فارسی">دوبله فارسی</option><option value="هر دو">هر دو</option></select></div>
-    <div class="filter-group"><label><i class="fas fa-tags"></i> ژانر</label><select id="filter-genre"><option value="">همه</option></select></div>
-    <button class="btn btn-sm btn-outline" id="reset-filters-btn"><i class="fas fa-undo-alt"></i> بازنشانی</button>
-  </div>
-  <div class="table-responsive">
-    <table id="series-table">
-      <thead>
-        <tr>
-          <th data-sort="poster">پوستر</th>
-          <th data-sort="title">نام سریال <i class="fas fa-sort"></i></th>
-          <th data-sort="titleEn">نام انگلیسی</th>
-          <th data-sort="year">سال <i class="fas fa-sort"></i></th>
-          <th data-sort="director">کارگردان</th>
-          <th data-sort="country">کشور</th>
-          <th data-sort="language">زبان</th>
-          <th>آخرین قسمت</th>
-          <th>عملیات</th>
-         </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-  <div id="pagination-container"></div>
+    <h2><i class="fas fa-tv"></i> سریال‌های ایرانی</h2>
+    <div class="top-bar">
+        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="series-search" placeholder="جستجوی نام سریال..."></div>
+        <button class="btn btn-success" id="add-series-btn"><i class="fas fa-plus-circle"></i> افزودن سریال جدید</button>
+    </div>
+    <div class="filters-bar">
+        <div class="filter-group"><label><i class="fas fa-globe"></i> کشور سازنده</label><select id="series-filter-country"><option value="">همه</option></select></div>
+        <div class="filter-group"><label><i class="fas fa-language"></i> زبان / دوبله</label><select id="series-filter-language"><option value="">همه</option><option value="فارسی">فارسی</option><option value="زبان اصلی">زبان اصلی</option><option value="دوبله فارسی">دوبله فارسی</option><option value="هر دو">هر دو</option></select></div>
+        <div class="filter-group"><label><i class="fas fa-tags"></i> ژانر</label><select id="series-filter-genre"><option value="">همه</option></select></div>
+        <button class="btn btn-sm btn-outline" id="reset-filters-btn"><i class="fas fa-undo-alt"></i> بازنشانی</button>
+    </div>
+    <div class="table-responsive">
+        <table id="series-table">
+            <thead>
+                <tr>
+                    <th data-sort="poster">پوستر</th>
+                    <th data-sort="title">نام سریال <i class="fas fa-sort"></i></th>
+                    <th data-sort="titleEn">نام انگلیسی</th>
+                    <th data-sort="year">سال <i class="fas fa-sort"></i></th>
+                    <th data-sort="director">کارگردان</th>
+                    <th data-sort="country">کشور</th>
+                    <th data-sort="language">زبان</th>
+                    <th>آخرین قسمت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div id="pagination-container"></div>
 </div>
 
 <!-- مودال افزودن/ویرایش سریال -->
 <div id="series-modal" class="modal-overlay" style="display:none;">
-  <div class="modal-content">
-    <h3 id="form-title"><i class="fas fa-edit"></i> افزودن سریال جدید</h3>
-    <div class="grid-2">
-      <div><label>نام فارسی *</label><input type="text" id="series-title" placeholder="مثال: پایتخت"></div>
-      <div><label>نام انگلیسی</label><input type="text" id="series-title-en" placeholder="Paytakht"></div>
-      <div><label>سال ساخت</label><input type="text" id="series-year" placeholder="۱۳۹۰"></div>
-      <div><label>کارگردان</label><input type="text" id="series-director" placeholder="سروش صحت"></div>
-      <div><label>نویسنده</label><input type="text" id="series-writer" placeholder="سروش صحت، سید مهدی سجاده‌چی"></div>
-      <div><label>بازیگران اصلی</label><input type="text" id="series-cast" placeholder="محمدرضا فروتن، الهام کردا"></div>
-      <div><label>مدت هر قسمت (دقیقه)</label><input type="number" id="series-duration" placeholder="۴۵"></div>
-      <div><label>کشور سازنده</label><select id="series-country"><option value="">انتخاب کنید</option></select></div>
-      <div><label>زبان / دوبله</label><select id="series-language"><option value="">انتخاب کنید</option><option value="فارسی">فارسی</option><option value="زبان اصلی">زبان اصلی</option><option value="دوبله فارسی">دوبله فارسی</option><option value="هر دو">هر دو</option></select></div>
-      <div><label>امتیاز IMDB</label><input type="number" id="series-imdb" step="0.1" min="0" max="10" placeholder="۸.۰"></div>
-      <div><label>کیفیت</label><input type="text" id="series-quality" placeholder="1080p"></div>
-      <div><label>زیرنویس</label><input type="text" id="series-subtitle" placeholder="فارسی، انگلیسی"></div>
-      <div><label>ژانرها (چندتایی)</label><select id="series-genres" multiple style="height:110px;"><option>درام</option><option>کمدی</option><option>ترسناک</option><option>اکشن</option><option>علمی-تخیلی</option><option>عاشقانه</option><option>جنایی</option><option>مستند</option><option>تاریخی</option><option>انیمیشن</option><option>خانوادگی</option><option>ماجراجویی</option><option>فانتزی</option><option>معمایی</option></select></div>
-      <div><label>پوستر سریال</label><input type="file" id="series-poster" accept="image/*"><img id="poster-preview" class="image-preview" style="display:none;"></div>
-      <div><label>خلاصه داستان</label><textarea id="series-desc" rows="3" placeholder="درباره سریال..."></textarea></div>
+    <div class="modal-content">
+        <h3 id="form-title"><i class="fas fa-edit"></i> افزودن سریال جدید</h3>
+        <div class="grid-2">
+            <div><label>نام فارسی *</label><input type="text" id="series-title" placeholder="مثال: پایتخت"></div>
+            <div><label>نام انگلیسی</label><input type="text" id="series-title-en" placeholder="Paytakht"></div>
+            <div><label>سال ساخت</label><input type="text" id="series-year" placeholder="۱۳۹۰"></div>
+            <div><label>کارگردان</label><input type="text" id="series-director" placeholder="سروش صحت"></div>
+            <div><label>نویسنده</label><input type="text" id="series-writer" placeholder="سروش صحت، سید مهدی سجاده‌چی"></div>
+            <div><label>بازیگران اصلی</label><input type="text" id="series-cast" placeholder="محمدرضا فروتن، الهام کردا"></div>
+            <div><label>مدت هر قسمت (دقیقه)</label><input type="number" id="series-duration" placeholder="۴۵"></div>
+            <div><label>کشور سازنده</label><select id="series-country"><option value="">انتخاب کنید</option></select></div>
+            <div><label>زبان / دوبله</label><select id="series-language"><option value="">انتخاب کنید</option><option value="فارسی">فارسی</option><option value="زبان اصلی">زبان اصلی</option><option value="دوبله فارسی">دوبله فارسی</option><option value="هر دو">هر دو</option></select></div>
+            <div><label>امتیاز IMDB</label><input type="number" id="series-imdb" step="0.1" min="0" max="10" placeholder="۸.۰"></div>
+            <div><label>کیفیت</label><input type="text" id="series-quality" placeholder="1080p"></div>
+            <div><label>زیرنویس</label><input type="text" id="series-subtitle" placeholder="فارسی، انگلیسی"></div>
+            <div><label>ژانرها (چندتایی)</label><select id="series-genres" multiple style="height:110px;"><option>درام</option><option>کمدی</option><option>ترسناک</option><option>اکشن</option><option>علمی-تخیلی</option><option>عاشقانه</option><option>جنایی</option><option>مستند</option><option>تاریخی</option><option>انیمیشن</option><option>خانوادگی</option><option>ماجراجویی</option><option>فانتزی</option><option>معمایی</option></select></div>
+            <div><label>پوستر سریال</label><input type="file" id="series-poster" accept="image/*"><img id="poster-preview" class="image-preview" style="display:none;"></div>
+            <div><label>خلاصه داستان</label><textarea id="series-desc" rows="3" placeholder="درباره سریال..."></textarea></div>
+        </div>
+        <div class="modal-actions"><button class="btn btn-success" id="save-series-btn">ذخیره</button><button class="btn btn-outline" id="close-modal-btn">انصراف</button></div>
     </div>
-    <div class="modal-actions"><button class="btn btn-success" id="save-series-btn">ذخیره</button><button class="btn btn-outline" id="close-modal-btn">انصراف</button></div>
-  </div>
 </div>
 
 <!-- مودال مدیریت فصل‌ها و قسمت‌ها -->
 <div id="episodes-modal" class="modal-overlay" style="display:none;">
-  <div class="modal-content" style="width: 1100px;">
-    <h3 id="episodes-modal-title">مدیریت قسمت‌ها</h3>
-    <div id="episodes-container" style="margin-bottom: 20px;">
-      <!-- فصل‌ها به صورت داینامیک اضافه می‌شوند -->
+    <div class="modal-content" style="width: 1100px;">
+        <h3 id="episodes-modal-title">مدیریت قسمت‌ها</h3>
+        <div id="episodes-container" style="margin-bottom: 20px;"></div>
+        <div class="modal-actions">
+            <button class="btn btn-primary" id="add-season-btn"><i class="fas fa-plus"></i> افزودن فصل جدید</button>
+            <button class="btn btn-outline" id="close-episodes-modal-btn">بستن</button>
+        </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" id="add-season-btn"><i class="fas fa-plus"></i> افزودن فصل جدید</button>
-      <button class="btn btn-outline" id="close-episodes-modal-btn">بستن</button>
-    </div>
-  </div>
 </div>
 
 <script src="lib/sweetalert2.min.js"></script>

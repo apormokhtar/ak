@@ -1,3 +1,5 @@
+import { initDatabase } from './modules/db.js';
+
 document.querySelectorAll('.group-toggle').forEach(btn => {
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -62,5 +64,6 @@ async function loadPage(page) {
 document.querySelectorAll('.sidebar-btn[data-page]').forEach(btn => {
   btn.addEventListener('click', () => loadPage(btn.dataset.page));
 });
-
+import { initDatabase } from './modules/db.js';
+initDatabase();
 loadPage('dashboard');

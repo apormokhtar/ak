@@ -34,4 +34,34 @@
 .episode-info { display: flex; align-items: center; gap: 12px; flex: 3; flex-wrap: wrap; }
 .episode-actions { display: flex; gap: 6px; }
 .btn-sm { padding: 4px 8px; font-size: 12px; }
+
+/* اصلاح جدول سریال‌ها */
+.table-responsive {
+    overflow-x: auto;
+}
+#series-table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+    margin-top: 16px;
+    table-layout: fixed;
+}
+#series-table th,
+#series-table td {
+    padding: 12px 8px;
+    text-align: right;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+    word-break: break-word;
+}
+#series-table th:nth-child(1) { width: 60px; }  /* پوستر */
+#series-table th:nth-child(2) { width: 150px; } /* نام فارسی */
+#series-table th:nth-child(3) { width: 120px; } /* نام انگلیسی */
+#series-table th:nth-child(4) { width: 70px; }  /* سال */
+#series-table th:nth-child(5) { width: 100px; } /* کارگردان */
+#series-table th:nth-child(6) { width: 100px; } /* کشور */
+#series-table th:nth-child(7) { width: 100px; } /* زبان */
+#series-table th:nth-child(8) { width: 130px; } /* آخرین قسمت */
+#series-table th:nth-child(9) { width: 120px; } /* عملیات */
+
 @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
