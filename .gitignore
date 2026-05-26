@@ -37,3 +37,5 @@ yarn.lock
 # فایل‌های شخصی (تنظیمات محیطی)
 .env
 .env.local
+/electron-dist
+/electron-temp
