@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فیلم‌های خارجی | مدیا سنتر</title>
+  <link rel="stylesheet" href="modules/movies/foreign/foreign.css">
+</head>
+<body>
+<div class="card">
+  <h2><i class="fas fa-globe"></i> فیلم‌های خارجی</h2>
+  <div class="top-bar">
+    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="foreign-movie-search" placeholder="جستجوی نام فارسی یا انگلیسی..."></div>
+    <button class="btn btn-success" id="foreign-add-movie-btn"><i class="fas fa-plus-circle"></i> افزودن فیلم جدید</button>
+  </div>
+  <div class="filters-bar">
+    <div class="filter-group"><label><i class="fas fa-globe"></i> کشور سازنده</label><select id="foreign-filter-country"><option value="">همه</option></select></div>
+    <div class="filter-group"><label><i class="fas fa-language"></i> زبان / دوبله</label><select id="foreign-filter-language"><option value="">همه</option><option value="زبان اصلی">زبان اصلی (بدون دوبله)</option><option value="دوبله فارسی">دوبله فارسی</option><option value="هر دو">هر دو (زبان اصلی + دوبله فارسی)</option></select></div>
+    <div class="filter-group"><label><i class="fas fa-tags"></i> ژانر (چندگانه)</label>
+      <select id="foreign-filter-genre" multiple size="3">
+        <option value="">همه</option>
+      </select>
+    </div>
+    <button class="btn btn-sm btn-outline" id="foreign-reset-filters-btn"><i class="fas fa-undo-alt"></i> بازنشانی</button>
+  </div>
+  <div class="table-responsive"><table id="foreign-movies-table"><thead><tr><th data-sort="poster">پوستر</th><th data-sort="title">نام فارسی <i class="fas fa-sort"></i></th><th data-sort="titleEn">نام انگلیسی</th><th data-sort="year">سال <i class="fas fa-sort"></i></th><th data-sort="director">کارگردان</th><th data-sort="country">کشور</th><th data-sort="language">زبان</th><th data-sort="duration">مدت (دقیقه)</th><th data-sort="imdb">امتیاز IMDB <i class="fas fa-sort"></i></th><th>عملیات</th></tr></thead><tbody></tbody></table></div>
+  <div id="foreign-pagination-container"></div>
+</div>
+
+<!-- مودال افزودن/ویرایش فیلم خارجی -->
+<div id="foreign-movie-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-content">
+    <h3 id="foreign-form-title"><i class="fas fa-edit"></i> افزودن فیلم جدید</h3>
+    <div class="grid-2">
+      <div><label>نام فارسی *</label><input type="text" id="foreign-movie-title" placeholder="مثال: رستگاری در شاوشنک"></div>
+      <div><label>نام انگلیسی</label><input type="text" id="foreign-movie-title-en" placeholder="The Shawshank Redemption"></div>
+      <div><label>سال ساخت</label><input type="text" id="foreign-movie-year" placeholder="۱۹۹۴"></div>
+      <div><label>کارگردان</label><input type="text" id="foreign-movie-director" placeholder="فرانک دارابونت"></div>
+      <div><label>نویسنده</label><input type="text" id="foreign-movie-writer" placeholder="استیون کینگ، فرانک دارابونت"></div>
+      <div><label>بازیگران اصلی</label><input type="text" id="foreign-movie-cast" placeholder="تیم رابینز، مورگان فریمن"></div>
+      <div><label>مدت زمان (دقیقه)</label><input type="number" id="foreign-movie-duration" placeholder="۱۴۲"></div>
+      <div><label>کشور سازنده</label><select id="foreign-movie-country"><option value="">انتخاب کنید</option></select></div>
+<div><label>زبان / دوبله</label><select id="foreign-movie-language"><option value="">انتخاب کنید</option><option value="زبان اصلی">زبان اصلی (بدون دوبله)</option><option value="دوبله فارسی">دوبله فارسی</option><option value="هر دو">هر دو (زبان اصلی + دوبله فارسی)</option></select></div>      <div><label>امتیاز IMDB</label><input type="number" id="foreign-movie-imdb" step="0.1" min="0" max="10" placeholder="۹.۳"></div>
+      <div><label>کیفیت</label><input type="text" id="foreign-movie-quality" placeholder="1080p BluRay"></div>
+      <div><label>زیرنویس</label><input type="text" id="foreign-movie-subtitle" placeholder="فارسی، انگلیسی"></div>
+      <div><label>ژانرها (چندتایی)</label><select id="foreign-movie-genres" multiple style="height:110px;"><option>درام</option><option>کمدی</option><option>ترسناک</option><option>اکشن</option><option>علمی-تخیلی</option><option>عاشقانه</option><option>جنایی</option><option>مستند</option><option>تاریخی</option><option>انیمیشن</option><option>خانوادگی</option><option>ماجراجویی</option><option>فانتزی</option><option>معمایی</option></select></div>
+      <div><label>فایل فیلم</label><div class="file-input-group"><input type="text" id="foreign-movie-file" readonly placeholder="مسیر فایل ویدیویی"><button class="file-btn" id="foreign-select-file-btn"><i class="fas fa-folder-open"></i></button></div></div>
+      <div><label>پوستر فیلم</label><input type="file" id="foreign-movie-poster" accept="image/*"><img id="foreign-poster-preview" class="image-preview" style="display:none;"></div>
+      <div><label>خلاصه داستان</label><textarea id="foreign-movie-desc" rows="3" placeholder="درباره فیلم..."></textarea></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-success" id="foreign-save-movie-btn"><i class="fas fa-save"></i> ذخیره</button><button class="btn btn-outline" id="foreign-close-modal-btn"><i class="fas fa-times"></i> انصراف</button></div>
+  </div>
+</div>
+
+<script src="lib/sweetalert2.min.js"></script>
+<script src="modules/movies/foreign/foreign-script.js"></script>
+</body>
+</html>

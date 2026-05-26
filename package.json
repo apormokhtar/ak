@@ -1,0 +1,12 @@
+{
+  "name": "media-browser",
+  "version": "1.0.0",
+  "description": "مرورگر فیلم و سریال",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron-dist\\electron ."
+  },
+  "devDependencies": {
+    "electron": "39.2.7"
+  }
+}

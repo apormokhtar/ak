@@ -1,0 +1,39 @@
+# وابستگی‌های Node.js (این پوشه بزرگ است و نباید آپلود شود)
+node_modules/
+
+# فایل‌های تولید شده توسط Electron
+dist/
+out/
+*.log
+*.tmp
+
+# فایل‌های مربوط به سیستم عامل
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# فایل‌های مربوط به IDE / ادیتور
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# فایل‌های پکیج‌منیجر
+package-lock.json
+yarn.lock
+
+# فایل‌های بیلد و باینری
+*.exe
+*.dll
+*.so
+*.dylib
+
+# فایل‌های موقت دیتابیس (اگر از SQLite یا IndexedDB محلی استفاده می‌کنید)
+*.db
+*.db-journal
+
+# فایل‌های شخصی (تنظیمات محیطی)
+.env
+.env.local
